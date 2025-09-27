@@ -7,6 +7,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{02EA681E-C7D
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Play.Catalog.Service", "Play.Catalog.Service\Play.Catalog.Service.csproj", "{DFC7539E-C58A-4AAB-99BB-5E1B10B19F34}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Play.Common", "Play.Common\Play.Common.csproj", "{CA110967-D6C2-42D4-84ED-EDEFB8B726ED}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -17,6 +19,10 @@ Global
 		{DFC7539E-C58A-4AAB-99BB-5E1B10B19F34}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DFC7539E-C58A-4AAB-99BB-5E1B10B19F34}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DFC7539E-C58A-4AAB-99BB-5E1B10B19F34}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CA110967-D6C2-42D4-84ED-EDEFB8B726ED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CA110967-D6C2-42D4-84ED-EDEFB8B726ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CA110967-D6C2-42D4-84ED-EDEFB8B726ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CA110967-D6C2-42D4-84ED-EDEFB8B726ED}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
