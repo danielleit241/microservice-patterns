@@ -2,6 +2,8 @@
 using Play.Common.MongoDb;
 using Play.Inventory.Service.Clients;
 using Play.Inventory.Service.Entities;
+using Polly;
+using Polly.Timeout;
 
 namespace Play.Inventory.Service
 {
@@ -20,7 +22,22 @@ namespace Play.Inventory.Service
             builder.Services.AddHttpClient<CatalogClient>(client =>
             {
                 client.BaseAddress = new Uri(builder.Configuration["ServiceClients:Catalog"] ?? throw new Exception("Services:Catalog is empty"));
-            });
+            })
+                .AddTransientHttpErrorPolicy(policy =>
+                    policy.Or<TimeoutRejectedException>()
+                        .WaitAndRetryAsync
+                        (
+                            5,
+                            retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
+                            onRetry: (outcome, timespan, retryAttempt) =>
+                            {
+                                var serviceProvider = builder.Services.BuildServiceProvider();
+                                serviceProvider.GetService<ILogger<CatalogClient>>()?
+                                    .LogWarning($"Delaying for {timespan.TotalSeconds} seconds, then making retry {retryAttempt}");
+                            }
+                        )
+                    )
+                .AddPolicyHandler(Policy.TimeoutAsync<HttpResponseMessage>(1));
 
             var app = builder.Build();
             if (app.Environment.IsDevelopment())
