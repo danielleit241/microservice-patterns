@@ -6,8 +6,8 @@ namespace Play.Common
     {
         Task<IReadOnlyCollection<T>> GetAllAsync();
         Task<IReadOnlyCollection<T>> GetAllAsync(Expression<Func<T, bool>> filter);
-        Task<T?> GetByIdAsync(Guid id);
-        Task<T?> GetByIdAsync(Expression<Func<T, bool>> filter);
+        Task<T?> GetAsync(Guid id);
+        Task<T?> GetAsync(Expression<Func<T, bool>> filter);
         Task CreateAsync(T item);
         Task UpdateAsync(T item);
         Task RemoveAsync(Guid id);

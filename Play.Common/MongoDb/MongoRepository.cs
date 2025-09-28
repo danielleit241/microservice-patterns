@@ -1,7 +1,7 @@
 ﻿using MongoDB.Driver;
 using System.Linq.Expressions;
 
-namespace Play.Common.MongoDB
+namespace Play.Common.MongoDb
 {
     public class MongoRepository<T> : IRepository<T> where T : IEntity
     {
@@ -24,14 +24,14 @@ namespace Play.Common.MongoDB
             return items;
         }
 
-        public async Task<T?> GetByIdAsync(Guid id)
+        public async Task<T?> GetAsync(Guid id)
         {
             var filter = filterBuilder.Eq(item => item.Id, id);
             var item = await dbCollection.FindAsync(filter);
             return item.FirstOrDefault();
         }
 
-        public async Task<T?> GetByIdAsync(Expression<Func<T, bool>> filter)
+        public async Task<T?> GetAsync(Expression<Func<T, bool>> filter)
         {
             var item = await dbCollection.FindAsync(filter);
             return item.FirstOrDefault();

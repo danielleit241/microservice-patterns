@@ -20,7 +20,7 @@ namespace Play.Catalog.Service.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<ItemDto>> GetById(Guid id)
         {
-            var item = await repo.GetByIdAsync(id);
+            var item = await repo.GetAsync(id);
             if (item == null)
             {
                 return NotFound();
@@ -39,7 +39,7 @@ namespace Play.Catalog.Service.Controllers
         [HttpPut("{id}")]
         public async Task<ActionResult> Put(Guid id, UpdateItemDto updateItemDto)
         {
-            var item = await repo.GetByIdAsync(id);
+            var item = await repo.GetAsync(id);
             if (item == null)
             {
                 return NotFound();
@@ -54,7 +54,7 @@ namespace Play.Catalog.Service.Controllers
         [HttpDelete("{id}")]
         public ActionResult Delete(Guid id)
         {
-            var item = repo.GetByIdAsync(id);
+            var item = repo.GetAsync(id);
             if (item == null)
             {
                 return NotFound();

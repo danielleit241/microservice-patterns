@@ -1,7 +1,8 @@
-using Play.Catalog.Service.Entities;
-using Play.Common.MongoDb;
 
-namespace Play.Catalog.Service
+using Play.Common.MongoDb;
+using Play.Inventory.Service.Entities;
+
+namespace Play.Inventory.Service
 {
     public class Program
     {
@@ -13,10 +14,9 @@ namespace Play.Catalog.Service
             builder.Services.AddSwaggerGen();
 
             builder.Services.AddMongoDb(builder.Configuration)
-                .AddMongoRepository<Item>("catalogitems");
+                .AddMongoRepository<InventoryItem>("inventoryitems");
 
             var app = builder.Build();
-
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
@@ -26,6 +26,7 @@ namespace Play.Catalog.Service
             app.UseHttpsRedirection();
 
             app.UseAuthorization();
+
 
             app.MapControllers();
 

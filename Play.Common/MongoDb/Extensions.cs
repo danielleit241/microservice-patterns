@@ -6,7 +6,7 @@ using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver;
 using Play.Common.Settings;
 
-namespace Play.Common.MongoDB
+namespace Play.Common.MongoDb
 {
     public static class Extensions
     {
