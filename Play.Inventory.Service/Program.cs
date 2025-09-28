@@ -1,5 +1,6 @@
 
 using Play.Common.MongoDb;
+using Play.Inventory.Service.Clients;
 using Play.Inventory.Service.Entities;
 
 namespace Play.Inventory.Service
@@ -15,6 +16,11 @@ namespace Play.Inventory.Service
 
             builder.Services.AddMongoDb(builder.Configuration)
                 .AddMongoRepository<InventoryItem>("inventoryitems");
+
+            builder.Services.AddHttpClient<CatalogClient>(client =>
+            {
+                client.BaseAddress = new Uri(builder.Configuration["ServiceClients:Catalog"] ?? throw new Exception("Services:Catalog is empty"));
+            });
 
             var app = builder.Build();
             if (app.Environment.IsDevelopment())
