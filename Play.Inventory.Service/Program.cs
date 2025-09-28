@@ -19,25 +19,53 @@ namespace Play.Inventory.Service
             builder.Services.AddMongoDb(builder.Configuration)
                 .AddMongoRepository<InventoryItem>("inventoryitems");
 
+            Random jitterer = new Random();
+
             builder.Services.AddHttpClient<CatalogClient>(client =>
             {
-                client.BaseAddress = new Uri(builder.Configuration["ServiceClients:Catalog"] ?? throw new Exception("Services:Catalog is empty"));
+                client.BaseAddress = new Uri(
+                    builder.Configuration["ServiceClients:Catalog"]
+                    ?? throw new Exception("Services:Catalog is empty"));
             })
-                .AddTransientHttpErrorPolicy(policy =>
-                    policy.Or<TimeoutRejectedException>()
-                        .WaitAndRetryAsync
-                        (
-                            5,
-                            retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
-                            onRetry: (outcome, timespan, retryAttempt) =>
-                            {
-                                var serviceProvider = builder.Services.BuildServiceProvider();
-                                serviceProvider.GetService<ILogger<CatalogClient>>()?
-                                    .LogWarning($"Delaying for {timespan.TotalSeconds} seconds, then making retry {retryAttempt}");
-                            }
-                        )
+            .AddTransientHttpErrorPolicy(policy =>
+                policy.Or<TimeoutRejectedException>()
+                    .WaitAndRetryAsync(
+                        retryCount: 5,
+                        sleepDurationProvider: retryAttempt =>
+                            TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)) +
+                            TimeSpan.FromMilliseconds(jitterer.Next(0, 1000)),
+                        onRetry: (outcome, timespan, retryAttempt, context) =>
+                        {
+                            var serviceProvider = builder.Services.BuildServiceProvider();
+                            serviceProvider.GetService<ILogger<CatalogClient>>()?
+                                .LogWarning(
+                                    $"Delaying for {timespan.TotalSeconds} seconds, " +
+                                    $"then making retry {retryAttempt}");
+                        }
                     )
-                .AddPolicyHandler(Policy.TimeoutAsync<HttpResponseMessage>(1));
+            )
+            .AddTransientHttpErrorPolicy(policy =>
+                policy.Or<TimeoutRejectedException>()
+                    .AdvancedCircuitBreakerAsync(
+                        failureThreshold: 0.5,
+                        samplingDuration: TimeSpan.FromSeconds(15),
+                        minimumThroughput: 3,
+                        durationOfBreak: TimeSpan.FromSeconds(15),
+                        onBreak: async (outcome, breakDelay, context) =>
+                        {
+                            var serviceProvider = builder.Services.BuildServiceProvider();
+                            serviceProvider.GetService<ILogger<CatalogClient>>()?
+                                .LogWarning($"Opening the circuit for {breakDelay.TotalSeconds} seconds...");
+                        },
+                        onReset: (context) =>
+                        {
+                            var serviceProvider = builder.Services.BuildServiceProvider();
+                            serviceProvider.GetService<ILogger<CatalogClient>>()?
+                                .LogWarning("Closing the circuit...");
+                        }
+                    )
+            )
+            .AddPolicyHandler(Policy.TimeoutAsync<HttpResponseMessage>(1));
 
             var app = builder.Build();
             if (app.Environment.IsDevelopment())
