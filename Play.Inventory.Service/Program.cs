@@ -1,4 +1,5 @@
 
+using Play.Common.MassTransit;
 using Play.Common.MongoDb;
 using Play.Inventory.Service.Clients;
 using Play.Inventory.Service.Entities;
@@ -16,9 +17,34 @@ namespace Play.Inventory.Service
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
-            builder.Services.AddMongoDb(builder.Configuration)
-                .AddMongoRepository<InventoryItem>("inventoryitems");
+            var configuration = builder.Configuration;
 
+            builder.Services.AddMongoDb(configuration)
+                .AddMongoRepository<InventoryItem>("inventoryitems")
+                .AddMongoRepository<CatalogItem>("catalogitems")
+                .AddMassTransitWithRabbitMq(configuration);
+
+            AddCatalogClient(builder);
+
+            var app = builder.Build();
+            if (app.Environment.IsDevelopment())
+            {
+                app.UseSwagger();
+                app.UseSwaggerUI();
+            }
+
+            app.UseHttpsRedirection();
+
+            app.UseAuthorization();
+
+
+            app.MapControllers();
+
+            app.Run();
+        }
+
+        private static void AddCatalogClient(WebApplicationBuilder builder)
+        {
             Random jitterer = new Random();
 
             builder.Services.AddHttpClient<CatalogClient>(client =>
@@ -66,22 +92,6 @@ namespace Play.Inventory.Service
                     )
             )
             .AddPolicyHandler(Policy.TimeoutAsync<HttpResponseMessage>(1));
-
-            var app = builder.Build();
-            if (app.Environment.IsDevelopment())
-            {
-                app.UseSwagger();
-                app.UseSwaggerUI();
-            }
-
-            app.UseHttpsRedirection();
-
-            app.UseAuthorization();
-
-
-            app.MapControllers();
-
-            app.Run();
         }
     }
 }

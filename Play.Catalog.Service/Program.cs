@@ -1,4 +1,5 @@
 using Play.Catalog.Service.Entities;
+using Play.Common.MassTransit;
 using Play.Common.MongoDb;
 
 namespace Play.Catalog.Service
@@ -12,8 +13,10 @@ namespace Play.Catalog.Service
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
-            builder.Services.AddMongoDb(builder.Configuration)
-                .AddMongoRepository<Item>("catalogitems");
+            builder.Services
+                .AddMongoDb(builder.Configuration)
+                .AddMongoRepository<Item>("catalogitems")
+                .AddMassTransitWithRabbitMq(builder.Configuration);
 
             var app = builder.Build();
 
