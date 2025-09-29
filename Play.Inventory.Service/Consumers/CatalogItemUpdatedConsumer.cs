@@ -21,7 +21,8 @@ namespace Play.Inventory.Service.Consumers
                 {
                     Id = message.ItemId,
                     Name = message.Name,
-                    Description = message.Description
+                    Description = message.Description,
+                    Price = message.Price
                 };
 
                 await repository.CreateAsync(item);
@@ -30,6 +31,7 @@ namespace Play.Inventory.Service.Consumers
             {
                 item.Name = message.Name;
                 item.Description = message.Description;
+                item.Price = message.Price;
 
                 await repository.UpdateAsync(item);
             }

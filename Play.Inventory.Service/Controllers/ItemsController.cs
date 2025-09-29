@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Play.Common;
+using Play.Inventory.Service.Clients;
 using Play.Inventory.Service.Dtos;
 using Play.Inventory.Service.Entities;
 
@@ -9,14 +11,22 @@ namespace Play.Inventory.Service.Controllers
     [Route("api/inventory/items")]
     public class ItemsController(
         IRepository<InventoryItem> inventoryItemsRepository,
-        IRepository<CatalogItem> catalogItemsRepository) : ControllerBase
+        IRepository<CatalogItem> catalogItemsRepository,
+        IdentityClient identityClient) : ControllerBase
     {
         [HttpGet("{userId:guid}")]
+        [Authorize]
         public async Task<ActionResult<IEnumerable<InventoryItem>>> GetAsync(Guid userId)
         {
             if (userId == Guid.Empty)
             {
                 return BadRequest();
+            }
+
+            var user = await identityClient.GetUserAsync(userId);
+            if (user == null)
+            {
+                return NotFound($"User with id {userId} not found.");
             }
 
             var inventoryItemsEntities = await inventoryItemsRepository.GetAllAsync(item => item.UserId == userId);
@@ -37,24 +47,53 @@ namespace Play.Inventory.Service.Controllers
         [HttpPost]
         public async Task<ActionResult> PostAsync(GrandtItemsDto grandtItemsDto)
         {
-            var inventoryItem = await inventoryItemsRepository.GetAsync
-             (
-                item => item.UserId == grandtItemsDto.UserId &&
-                        item.CatalogItemId == grandtItemsDto.CatalogItemId
-             );
+            var user = await identityClient.GetUserAsync(grandtItemsDto.UserId);
+            if (user == null)
+            {
+                return NotFound($"User with id {grandtItemsDto.UserId} not found.");
+            }
+            var catalogItem = await catalogItemsRepository.GetAsync(grandtItemsDto.CatalogItemId);
+            if (catalogItem == null)
+            {
+                return NotFound($"Catalog item with id {grandtItemsDto.CatalogItemId} not found.");
+            }
 
-            if (inventoryItem == null)
+            var amount = catalogItem.Price * grandtItemsDto.Quantity;
+            string idempotencyKey = Guid.NewGuid().ToString();
+            var debitRequest = new DebitRequestDto(amount, idempotencyKey);
+
+            var debitResult = await identityClient.DebitAsync(user.Id, debitRequest);
+            if (!debitResult)
             {
-                inventoryItem = grandtItemsDto.AsInventoryItem();
-                await inventoryItemsRepository.CreateAsync(inventoryItem);
+                return BadRequest($"User with id {grandtItemsDto.UserId} has insufficient balance.");
             }
-            else
+
+            try
             {
-                inventoryItem.Quantity += grandtItemsDto.Quantity;
-                inventoryItem.AcquiredDate = DateTimeOffset.UtcNow;
-                await inventoryItemsRepository.UpdateAsync(inventoryItem);
+                var inventoryItem = await inventoryItemsRepository.GetAsync
+                 (
+                    item => item.UserId == grandtItemsDto.UserId &&
+                            item.CatalogItemId == grandtItemsDto.CatalogItemId
+                 );
+
+                if (inventoryItem == null)
+                {
+                    inventoryItem = grandtItemsDto.AsInventoryItem();
+                    await inventoryItemsRepository.CreateAsync(inventoryItem);
+                }
+                else
+                {
+                    inventoryItem.Quantity += grandtItemsDto.Quantity;
+                    inventoryItem.AcquiredDate = DateTimeOffset.UtcNow;
+                    await inventoryItemsRepository.UpdateAsync(inventoryItem);
+                }
+                return Ok();
             }
-            return Ok();
+            catch (Exception)
+            {
+                await identityClient.CreditAsync(user.Id, debitRequest);
+                throw;
+            }
         }
     }
 }

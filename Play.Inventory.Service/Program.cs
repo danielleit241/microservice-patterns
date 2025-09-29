@@ -1,4 +1,5 @@
 
+using Play.Common.Jwt;
 using Play.Common.MassTransit;
 using Play.Common.MongoDb;
 using Play.Inventory.Service.Clients;
@@ -24,7 +25,10 @@ namespace Play.Inventory.Service
                 .AddMongoRepository<CatalogItem>("catalogitems")
                 .AddMassTransitWithRabbitMq(configuration);
 
+            builder.Services.AddJwtBearerAuthentication(builder.Configuration);
+
             AddCatalogClient(builder);
+            AddIdentityClient(builder);
 
             var app = builder.Build();
             if (app.Environment.IsDevelopment())
@@ -35,12 +39,62 @@ namespace Play.Inventory.Service
 
             //app.UseHttpsRedirection();
 
-            app.UseAuthorization();
-
+            app.AddApplicationAuthenAndAuthor();
 
             app.MapControllers();
 
             app.Run();
+        }
+
+        private static void AddIdentityClient(WebApplicationBuilder builder)
+        {
+            builder.Services.AddHttpContextAccessor();
+            Random jitterer = new Random();
+
+            builder.Services.AddHttpClient<IdentityClient>(client =>
+            {
+                client.BaseAddress = new Uri(
+                    builder.Configuration["ServiceClients:Identity"]
+                    ?? throw new Exception("Services:Identity is empty"));
+            }).AddTransientHttpErrorPolicy(policy =>
+                policy.Or<TimeoutRejectedException>()
+                    .WaitAndRetryAsync(
+                        retryCount: 5,
+                        sleepDurationProvider: retryAttempt =>
+                            TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)) +
+                            TimeSpan.FromMilliseconds(jitterer.Next(0, 1000)),
+                        onRetry: (outcome, timespan, retryAttempt, context) =>
+                        {
+                            var serviceProvider = builder.Services.BuildServiceProvider();
+                            serviceProvider.GetService<ILogger<CatalogClient>>()?
+                                .LogWarning(
+                                    $"Delaying for {timespan.TotalSeconds} seconds, " +
+                                    $"then making retry {retryAttempt}");
+                        }
+                    )
+            )
+            .AddTransientHttpErrorPolicy(policy =>
+                policy.Or<TimeoutRejectedException>()
+                    .AdvancedCircuitBreakerAsync(
+                        failureThreshold: 0.5,
+                        samplingDuration: TimeSpan.FromSeconds(15),
+                        minimumThroughput: 3,
+                        durationOfBreak: TimeSpan.FromSeconds(15),
+                        onBreak: async (outcome, breakDelay, context) =>
+                        {
+                            var serviceProvider = builder.Services.BuildServiceProvider();
+                            serviceProvider.GetService<ILogger<CatalogClient>>()?
+                                .LogWarning($"Opening the circuit for {breakDelay.TotalSeconds} seconds...");
+                        },
+                        onReset: (context) =>
+                        {
+                            var serviceProvider = builder.Services.BuildServiceProvider();
+                            serviceProvider.GetService<ILogger<CatalogClient>>()?
+                                .LogWarning("Closing the circuit...");
+                        }
+                    )
+            )
+            .AddPolicyHandler(Policy.TimeoutAsync<HttpResponseMessage>(1));
         }
 
         private static void AddCatalogClient(WebApplicationBuilder builder)
