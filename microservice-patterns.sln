@@ -17,6 +17,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Play.Inventory", "Play.Inve
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Play.Catalog.Contracts", "Play.Catalog.Contracts\Play.Catalog.Contracts.csproj", "{53B86F3A-996B-4A3A-B7CB-65A50E2A97F9}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Play.ApiGateway", "Play.ApiGateway", "{4FA15B6A-995A-4584-9276-0852E4FC2AB4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Play.ApiGateway", "Play.ApiGateway\Play.ApiGateway.csproj", "{58C5B27D-B604-4C15-B9E1-0AAB783EB78D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +43,10 @@ Global
 		{53B86F3A-996B-4A3A-B7CB-65A50E2A97F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{53B86F3A-996B-4A3A-B7CB-65A50E2A97F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{53B86F3A-996B-4A3A-B7CB-65A50E2A97F9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{58C5B27D-B604-4C15-B9E1-0AAB783EB78D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{58C5B27D-B604-4C15-B9E1-0AAB783EB78D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{58C5B27D-B604-4C15-B9E1-0AAB783EB78D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{58C5B27D-B604-4C15-B9E1-0AAB783EB78D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -49,6 +57,8 @@ Global
 		{8071D8CF-C83B-4090-B754-D2823AA2A88F} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{830AF3AD-97B2-4FC2-A608-D3952556A0C8} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{53B86F3A-996B-4A3A-B7CB-65A50E2A97F9} = {8071D8CF-C83B-4090-B754-D2823AA2A88F}
+		{4FA15B6A-995A-4584-9276-0852E4FC2AB4} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{58C5B27D-B604-4C15-B9E1-0AAB783EB78D} = {4FA15B6A-995A-4584-9276-0852E4FC2AB4}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E0943770-AE0F-42AD-B312-228583B4CCB0}

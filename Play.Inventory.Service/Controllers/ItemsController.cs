@@ -6,7 +6,7 @@ using Play.Inventory.Service.Entities;
 namespace Play.Inventory.Service.Controllers
 {
     [ApiController]
-    [Route("items")]
+    [Route("api/inventory/items")]
     public class ItemsController(
         IRepository<InventoryItem> inventoryItemsRepository,
         IRepository<CatalogItem> catalogItemsRepository) : ControllerBase
