@@ -20,6 +20,14 @@ namespace Play.Common.MassTransit
                         ?? throw new ArgumentNullException(nameof(RabbitMQSettings));
                     configurator.Host(rabbitMqSettings.Host);
                     configurator.ConfigureEndpoints(context);
+
+                    configurator.UseMessageRetry(retryConfigurator =>
+                    {
+                        retryConfigurator.Interval(
+                             retryCount: 3,
+                             interval: TimeSpan.FromSeconds(5)
+                             );
+                    });
                 });
             });
 
