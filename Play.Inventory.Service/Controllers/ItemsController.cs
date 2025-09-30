@@ -45,6 +45,7 @@ namespace Play.Inventory.Service.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         public async Task<ActionResult> PostAsync(GrandtItemsDto grandtItemsDto)
         {
             var user = await identityClient.GetUserAsync(grandtItemsDto.UserId);

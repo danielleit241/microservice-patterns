@@ -47,6 +47,78 @@
         }
       ],
       "DownstreamPathTemplate": "/api/inventory/items"
+    },
+    {
+      "UpstreamPathTemplate": "/api/users/register",
+      "UpstreamHttpMethod": [ "POST" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 8009
+        }
+      ],
+      "DownstreamPathTemplate": "/api/users/register"
+    },
+    {
+      "UpstreamPathTemplate": "/api/users/login",
+      "UpstreamHttpMethod": [ "POST" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 8009
+        }
+      ],
+      "DownstreamPathTemplate": "/api/users/login"
+    },
+    {
+      "UpstreamPathTemplate": "/api/users/{id}",
+      "UpstreamHttpMethod": [ "GET" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 8009
+        }
+      ],
+      "DownstreamPathTemplate": "/api/users/{id}"
+    },
+    {
+      "UpstreamPathTemplate": "/api/users",
+      "UpstreamHttpMethod": [ "GET" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 8009
+        }
+      ],
+      "DownstreamPathTemplate": "/api/users"
+    },
+    {
+      "UpstreamPathTemplate": "/api/users/{id}/debit",
+      "UpstreamHttpMethod": [ "POST" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 8009
+        }
+      ],
+      "DownstreamPathTemplate": "/api/users/{id}/debit"
+    },
+    {
+      "UpstreamPathTemplate": "/api/users/{id}/credit",
+      "UpstreamHttpMethod": [ "POST" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 8009
+        }
+      ],
+      "DownstreamPathTemplate": "/api/users/{id}/credit"
     }
   ],
   "GlobalConfiguration": {

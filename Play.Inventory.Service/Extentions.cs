@@ -16,7 +16,7 @@ namespace Play.Inventory.Service
             );
         }
 
-        public static InventoryItem AsInventoryItem(this Dtos.GrandtItemsDto item)
+        public static InventoryItem AsInventoryItem(this GrandtItemsDto item)
         {
             return new InventoryItem
             {
