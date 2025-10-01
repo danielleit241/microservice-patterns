@@ -55,7 +55,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 8009
+          "Port": 5009
         }
       ],
       "DownstreamPathTemplate": "/api/users/register"
@@ -67,7 +67,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 8009
+          "Port": 5009
         }
       ],
       "DownstreamPathTemplate": "/api/users/login"
@@ -79,7 +79,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 8009
+          "Port": 5009
         }
       ],
       "DownstreamPathTemplate": "/api/users/{id}"
@@ -91,7 +91,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 8009
+          "Port": 5009
         }
       ],
       "DownstreamPathTemplate": "/api/users"
@@ -103,7 +103,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 8009
+          "Port": 5009
         }
       ],
       "DownstreamPathTemplate": "/api/users/{id}/debit"
@@ -115,7 +115,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 8009
+          "Port": 5009
         }
       ],
       "DownstreamPathTemplate": "/api/users/{id}/credit"

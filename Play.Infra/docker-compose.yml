@@ -15,12 +15,72 @@ services:
     image: rabbitmq:3-management
     container_name: rabbitmq
     ports:
-      - 5672:5672   # RabbitMQ server port
+      - 5672:5672 # RabbitMQ server port
       - 15672:15672 # RabbitMQ management UI port
     volumes:
       - rabbitmqdata:/var/lib/rabbitmq
     hostname: rabbitmq
-  
+
+  play.identity.service:
+    build:
+      context: ..
+      dockerfile: Play.Identity.Service/Dockerfile
+    container_name: play.identity.service
+    ports:
+      - 5009:80
+    depends_on:
+      - mongo
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - ConnectionStrings__MongoDb=mongodb://mongo:27017
+      - MongoSettings__DatabaseName=PlayIdentity
+      - JWTBearer__TokenValidationParameters__ValidIssuer=https://localhost:8009/
+      - JWTBearer__TokenValidationParameters__ValidAudience=Play.Identity-users
+      - JWTBearer__TokenValidationParameters__ValidateIssuer="true"
+      - JWTBearer__TokenValidationParameters__ValidateAudience="true"
+      - JWTBearer__TokenValidationParameters__ValidateIssuerSigningKey="true"
+      - JWTBearer__SecretKey=lzLvVoIsOTHSWhsANmuc8TUa8sbzEYfjDwMJGKcwKgtojApg4bsrfwj6DUzms6wi
+      - JWTSettings__Issuer=https://localhost:8009/
+      - JWTSettings__Audience=Play.Identity-users
+      - JWTSettings__SecretKey=lzLvVoIsOTHSWhsANmuc8TUa8sbzEYfjDwMJGKcwKgtojApg4bsrfwj6DUzms6wi
+      - JWTSettings__ExpiresMinutes="30"
+
+  play.catalog.service:
+    build:
+      context: ..
+      dockerfile: Play.Catalog.Service/Dockerfile
+    container_name: play.catalog.service
+    ports:
+      - 5000:80
+    depends_on:
+      - mongo
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - ConnectionStrings__MongoDb=mongodb://mongo:27017
+      - MongoSettings__DatabaseName=CatalogDb
+      - RabbitMQSettings__Host=rabbitmq
+
+  play.inventory.service:
+    build:
+      context: ..
+      dockerfile: Play.Inventory.Service/Dockerfile
+    container_name: play.inventory.service
+    ports:
+      - 5004:80
+    depends_on:
+      - mongo
+      - rabbitmq
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - ConnectionStrings__MongoDb=mongodb://mongo:27017
+      - MongoSettings__DatabaseName=PlayInventory
+      - RabbitMQSettings__Host=rabbitmq
+      - ServiceClients__Catalog=http://play.catalog.service:80
+      - ServiceClients__Identity=http://play.identity.service:80
+
 volumes:
   mongodbdata:
   rabbitmqdata:
